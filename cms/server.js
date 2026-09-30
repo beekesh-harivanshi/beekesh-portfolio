@@ -33,7 +33,7 @@ const MEDIA_DIR = process.env.MEDIA_DIR || path.join(__dirname, 'media');
 const SEED = process.env.SEED || path.join(__dirname, 'seed.json');
 
 const PORT = Number(process.env.PORT || 4173);
-const HOST = process.env.HOST || '127.0.0.1';
+const HOST = process.env.HOST || '0.0.0.0';
 const MAX_BODY = Number(process.env.MAX_UPLOAD_MB || 120) * 1024 * 1024;
 
 fs.mkdirSync(MEDIA_DIR, { recursive: true });
