@@ -1,0 +1,16 @@
+{
+  "name": "beekesh-portfolio-cms",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Admin CMS for the Beekesh portfolio website. The server itself has no dependencies - it uses only Node built-ins. jsdom is needed only by the one-time content importer.",
+  "scripts": {
+    "start": "node cms/server.js",
+    "import": "node cms/import-content.js"
+  },
+  "engines": {
+    "node": ">=22.5"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  }
+}

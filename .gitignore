@@ -1,0 +1,7 @@
+.workbuddy-ai/
+node_modules/
+cms/data/
+*.db
+*.db-shm
+*.db-wal
+.env
