@@ -310,12 +310,17 @@ let state = {
 
 /* ══ API ══════════════════════════════════════════════════════════════════ */
 async function api(path, opts = {}) {
-  const res = await fetch(path, {
-    method: opts.method || 'GET',
-    headers: opts.body ? { 'Content-Type': 'application/json' } : undefined,
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
-    credentials: 'same-origin'
-  });
+  let res;
+  try {
+    res = await fetch(path, {
+      method: opts.method || 'GET',
+      headers: opts.body ? { 'Content-Type': 'application/json' } : undefined,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+      credentials: 'same-origin'
+    });
+  } catch (err) {
+    throw new Error('Server connection error. Please try again.');
+  }
   let data = null;
   try { data = await res.json(); } catch { /* empty body */ }
   if (res.status === 401 && path !== '/api/login') { state.authed = false; renderLogin(); throw new Error('login'); }

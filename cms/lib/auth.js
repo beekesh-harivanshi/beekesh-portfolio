@@ -60,14 +60,14 @@ function sessionCookie(token, { secure = false } = {}) {
     `${SESSION_COOKIE}=${token}`,
     'Path=/',
     'HttpOnly',
-    'SameSite=Strict',
+    'SameSite=Lax',
     `Max-Age=${Math.floor(SESSION_TTL_MS / 1000)}`
   ];
   if (secure) bits.push('Secure');
   return bits.join('; ');
 }
 
-const clearCookie = () => `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`;
+const clearCookie = () => `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
 
 module.exports = {
   SESSION_COOKIE,

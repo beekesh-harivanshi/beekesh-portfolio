@@ -33,6 +33,8 @@ function open(dbPath) {
   const db = new DatabaseSync(dbPath);
   db.exec(`
     PRAGMA journal_mode = WAL;
+    PRAGMA synchronous = NORMAL;
+    PRAGMA wal_autocheckpoint = 50;
     CREATE TABLE IF NOT EXISTS docs (
       id                INTEGER PRIMARY KEY CHECK (id = 1),
       draft             TEXT    NOT NULL,
@@ -104,6 +106,7 @@ function createStore(db) {
       const row = getDoc.get();
       if (!row) return;
       savePublished.run(row.draft, now());
+      try { db.exec('PRAGMA wal_checkpoint(TRUNCATE);'); } catch (e) {}
     },
     // "Discard changes" — throw the draft away and start again from what is live.
     discardDraft() {

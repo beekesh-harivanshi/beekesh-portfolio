@@ -119,7 +119,12 @@ function readBody(req, limit = MAX_BODY) {
     const chunks = [];
     req.on('data', c => {
       size += c.length;
-      if (size > limit) { reject(new Error('payload too large')); req.destroy(); return; }
+      if (size > limit) {
+        const err = new Error('Payload too large');
+        err.status = 413;
+        reject(err);
+        return;
+      }
       chunks.push(c);
     });
     req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
@@ -231,8 +236,9 @@ async function route(req, res) {
     if (!user || !ok) return sendJson(res, 401, { error: 'Wrong username or password.' });
     const token = auth.newToken();
     store.createSession(token, user.id, auth.SESSION_TTL_MS);
+    const isHttps = req.headers['x-forwarded-proto'] === 'https' || !!req.socket.encrypted;
     return sendJson(res, 200, { ok: true, username: user.username }, {
-      'Set-Cookie': auth.sessionCookie(token)
+      'Set-Cookie': auth.sessionCookie(token, { secure: isHttps })
     });
   }
 
@@ -278,6 +284,16 @@ async function route(req, res) {
   if (p === '/api/publish' && method === 'POST') {
     requireAuth(ctx);
     store.publish();
+    try {
+      const pub = store.getPublished();
+      if (pub && fs.existsSync(SEED)) {
+        fs.writeFileSync(SEED, JSON.stringify(pub, null, 2), 'utf8');
+      }
+      const staticHtml = render(template(), store.getPublished(), 'public');
+      fs.writeFileSync(path.join(ROOT, 'index.html'), staticHtml, 'utf8');
+    } catch (e) {
+      console.error('Failed to sync seed.json/index.html on publish:', e);
+    }
     return sendJson(res, 200, {
       ok: true, meta: store.getMeta(), unpublished: store.hasUnpublishedChanges()
     });
